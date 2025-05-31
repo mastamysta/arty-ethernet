@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 module axi_eth#
 (
-    int P_AXI_ADDR_WIDTH = 32,
+    int P_AXI_ADDR_WIDTH = 13,
     int P_AXI_DATA_WIDTH = 32
 )
 (
@@ -17,8 +17,8 @@ module axi_eth#
     input wire eth_col,
     input wire eth_rxerr,
     output wire eth_rstn, // Not sure about this one
-    input wire eth_tx_en,
-    input wire[3:0] eth_txd,
+    output wire eth_tx_en,
+    output wire[3:0] eth_txd,
     inout wire eth_mdio, // Bidirectional MDIO line
     output wire eth_mdc
 );

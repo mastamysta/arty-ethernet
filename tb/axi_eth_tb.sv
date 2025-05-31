@@ -11,6 +11,11 @@ initial begin
     rst <= 1;
 end
 
+always begin
+    #10;
+    clk <= ~clk;
+end
+
 wire eth_tx_clk;
 wire eth_rx_clk;
 wire eth_crs;
@@ -27,7 +32,7 @@ wire eth_mdc;
 axi_eth axi_eth_inst
 (
     .clk(clk),
-    .rst(rst)
+    .rst(rst),
 
     .eth_tx_clk(eth_tx_clk),
     .eth_rx_clk(eth_rx_clk),
@@ -45,7 +50,7 @@ axi_eth axi_eth_inst
 
 logic tx_en_t1;
 
-always @(posedge clk) begin
+always_ff @(posedge clk) begin
     if (eth_tx_en) begin
         $display("%d", eth_txd);
     end else if (tx_en_t1) begin
@@ -55,13 +60,142 @@ always @(posedge clk) begin
     tx_en_t1 <= eth_tx_en;
 end
 
+// MDIO direction control:
+// mdio_oe = 1 means PHY drives MDIO line
+reg mdio_oe = 0;
+reg mdio_out = 1'b1;
 
+assign eth_mdio = mdio_oe ? mdio_out : 1'bz;
 
-always @(posedge mdc) begin
-    if (!reset_n) begin
-        // Reset state machine
+enum int unsigned 
+{
+    IDLE,
+    START,
+    OPCODE,
+    PHY_ADDR,
+    REG_ADDR,
+    TURNAROUND,
+    WRITE_DATA,
+    READ_DATA    
+} mdio_state;
+
+logic[15:0] mdio_shift;
+logic[5:0] bitcount;
+logic[1:0] opcode;
+logic[4:0] phy_addr;
+logic[4:0] reg_addr;
+
+// Fixed PHY register 1: Basic status register with link up and auto-neg complete bits set
+localparam [15:0] PHY_REG1_STATUS = 16'h7849;
+
+always_ff @(posedge eth_mdc) begin
+    if (!rst) begin
+        mdio_state <= IDLE;
+        mdio_shift <= 32'h0000_0000;
+        mdio_oe <= 1'b0;
+        bitcount <= 0;
     end else begin
-        // Shift in MDIO bits here
+
+        case (mdio_state)
+
+        IDLE: begin
+            if (eth_mdio) begin
+                bitcount <= bitcount + 1;
+                if (bitcount == 31) begin
+                    mdio_state <= START;
+                end
+            end else begin
+                bitcount <= 0;
+            end         
+        end
+
+        START: begin
+            mdio_shift <= (mdio_shift < 1) | eth_mdio;
+            bitcount <= bitcount + 1;
+            if (bitcount == 1)begin
+                if (mdio_shift[1:0] == 2'b01) begin
+                    mdio_state <= OPCODE;
+                    bitcount <= 0;
+                end else begin
+                    mdio_state <= IDLE;
+                end
+            end
+        end
+
+        OPCODE: begin
+            opcode <= {opcode[0], eth_mdio};
+            bitcount <= bitcount + 1;
+            if (bitcount == 1) begin
+                mdio_state <= PHY_ADDR;
+                bitcount <= 0;
+            end
+        end
+
+        PHY_ADDR: begin
+            phy_addr <= {phy_addr[4:1], eth_mdio}; // DIFF
+            bitcount <= bitcount + 1;
+            if (bitcount == 4) begin
+                mdio_state <= REG_ADDR;
+                bitcount <= 0;
+            end
+        end
+
+        REG_ADDR: begin
+            reg_addr <= {reg_addr[4:1], eth_mdio};
+            bitcount <= bitcount + 1;
+            if (bitcount == 4) begin
+                mdio_state <= TURNAROUND;
+                bitcount <= 0;
+            end
+        end
+
+        TURNAROUND: begin
+            bitcount <= bitcount + 1;
+            if (opcode == 2'b10) begin // READ
+                if (bitcount == 0) begin
+                    mdio_oe <= 0;
+                end else if (bitcount == 1) begin
+                    mdio_oe <= 1'b1;
+                    mdio_out <= 1'b0;
+                    if (reg_addr == 1) begin
+                        mdio_shift <= PHY_REG1_STATUS;
+                    end else begin
+                        $display("ERROR: Unrecognized read addr %d", reg_addr);
+                    end
+                    mdio_state <= READ_DATA;
+                    bitcount <= 0;
+                end
+            end else if (opcode == 2'b01) begin // WRITE
+                mdio_oe <= 1'b0;
+                if (bitcount == 1) begin
+                    mdio_state <= WRITE_DATA;
+                    bitcount <= 0;
+                end
+            end else begin
+                $display("Unrecognized opcode %d.", opcode);
+            end
+
+        end
+
+        READ_DATA: begin
+            mdio_out <= mdio_shift[15];
+            mdio_shift <= mdio_shift < 1;
+            bitcount <= bitcount + 1;
+            if (bitcount == 15) begin
+                mdio_oe <= 0;
+                mdio_state <= IDLE;
+                bitcount <= 0;
+            end
+        end
+
+        WRITE_DATA: begin
+            $display("OH NO!");
+        end
+
+        default: begin
+            mdio_state <= IDLE;
+        end
+        endcase
     end
 end
 
