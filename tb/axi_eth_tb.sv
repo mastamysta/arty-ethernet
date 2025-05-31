@@ -1,5 +1,9 @@
 `timescale 1ns/1ps
-module axi_eth_tb();
+module axi_eth_tb#
+(
+    int P_AXI_ADDR_WIDTH = 13,
+    int P_AXI_DATA_WIDTH = 32
+)();
 
 logic clk;
 logic rst;
@@ -12,24 +16,41 @@ initial begin
 end
 
 always begin
-    #10;
+    #5;
     clk <= ~clk;
 end
 
-wire eth_tx_clk;
-wire eth_rx_clk;
-wire eth_crs;
-wire eth_rx_dv;
-wire[3:0] eth_rxd;
-wire eth_col;
-wire eth_rxerr;
+logic eth_tx_clk = 1'b0;
+logic eth_rx_clk = 1'b0;
+logic eth_crs = 1'b0; // Carrier-sense ignored in full-duplex
+logic eth_col = 1'b0; // As above ^
+logic eth_rx_dv = 1'b0;
+logic[3:0] eth_rxd = 4'h0;
+logic eth_rxerr = 1'b0;
 wire eth_rstn;
 wire eth_tx_en;
 wire[3:0] eth_txd;
 wire eth_mdio;
 wire eth_mdc;
 
-axi_eth axi_eth_inst
+always #20 eth_tx_clk = ~eth_tx_clk;
+always #20 eth_rx_clk = ~eth_rx_clk;
+
+logic do_axi_write = 1'b0;
+logic[P_AXI_ADDR_WIDTH-1:0] axi_write_addr = 0;
+logic[P_AXI_DATA_WIDTH-1:0] axi_write_data = 0;
+
+logic do_axi_read = 1'b0;
+logic[P_AXI_ADDR_WIDTH-1:0] axi_read_addr = 0;
+logic[P_AXI_DATA_WIDTH-1:0] axi_read_data = 0;
+wire read_done;
+
+axi_eth #
+(
+    .P_AXI_ADDR_WIDTH(P_AXI_ADDR_WIDTH),
+    .P_AXI_DATA_WIDTH(P_AXI_DATA_WIDTH)
+)
+axi_eth_inst
 (
     .clk(clk),
     .rst(rst),
@@ -45,8 +66,43 @@ axi_eth axi_eth_inst
     .eth_tx_en(eth_tx_en),
     .eth_txd(eth_txd),
     .eth_mdio(eth_mdio), // Bidirectional MDIO line
-    .eth_mdc(eth_mdc)
+    .eth_mdc(eth_mdc),
+
+    .do_axi_write(do_axi_write),
+    .axi_write_addr(axi_write_addr),
+    .axi_write_data(axi_write_data),
+    .do_axi_read(do_axi_read),
+    .axi_read_addr(axi_read_addr),
+    .axi_read_data(axi_read_data),
+    .read_done(read_done)
 );
+
+localparam BASE_ADDR    = 32'h0000_0000;
+localparam MDIO_ADDR    = BASE_ADDR + 32'h07E4;
+localparam MDIO_CTRL    = BASE_ADDR + 32'h07F0;
+localparam MDIO_WR      = BASE_ADDR + 32'h07E8;
+logic[P_AXI_DATA_WIDTH-1:0] status;
+
+initial begin
+    #400; // Wait for first MDC pulse
+    $display("Writing address to write.");
+    axi_write_addr <= MDIO_ADDR;
+    axi_write_data <= 32'h00000401; // READ address 1
+    do_axi_write <= 1'b1;
+    #10;
+    do_axi_write <= 1'b0;
+
+    #200
+    
+    $display("Writing data to write.");
+    axi_write_addr <= MDIO_CTRL;
+    axi_write_data <= 32'h00000009; // Trigger it
+    do_axi_write <= 1'b1;
+    #10;
+    do_axi_write <= 1'b0;
+
+    $display("Waiting for stuff.");
+end
 
 logic tx_en_t1;
 

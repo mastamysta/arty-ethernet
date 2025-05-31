@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="axi_eth_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="\$unit_xpm_cdc_sv_220102727 " />
+            <top_module name="axi_eth_tb" />
+            <top_module name="glbl" />
+            <top_module name="mac_pkg" />
+            <top_module name="vcomponents" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="690.833 ns"></ZoomStartTime>
+      <ZoomEndTime time="1,061.834 ns"></ZoomEndTime>
+      <Cursor1Time time="1,000.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="115"></NameColumnWidth>
+      <ValueColumnWidth column_width="59"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="36" />
+   <wvobject fp_name="/axi_eth_tb/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/rst" type="logic">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/axi_eth_inst/do_axi_write" type="logic">
+      <obj_property name="ElementShortName">do_axi_write</obj_property>
+      <obj_property name="ObjectShortName">do_axi_write</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/eth_tx_clk" type="logic">
+      <obj_property name="ElementShortName">eth_tx_clk</obj_property>
+      <obj_property name="ObjectShortName">eth_tx_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/eth_rx_clk" type="logic">
+      <obj_property name="ElementShortName">eth_rx_clk</obj_property>
+      <obj_property name="ObjectShortName">eth_rx_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/eth_crs" type="logic">
+      <obj_property name="ElementShortName">eth_crs</obj_property>
+      <obj_property name="ObjectShortName">eth_crs</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/eth_rx_dv" type="logic">
+      <obj_property name="ElementShortName">eth_rx_dv</obj_property>
+      <obj_property name="ObjectShortName">eth_rx_dv</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/eth_rxd" type="array">
+      <obj_property name="ElementShortName">eth_rxd[3:0]</obj_property>
+      <obj_property name="ObjectShortName">eth_rxd[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/eth_col" type="logic">
+      <obj_property name="ElementShortName">eth_col</obj_property>
+      <obj_property name="ObjectShortName">eth_col</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/eth_rxerr" type="logic">
+      <obj_property name="ElementShortName">eth_rxerr</obj_property>
+      <obj_property name="ObjectShortName">eth_rxerr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/eth_rstn" type="logic">
+      <obj_property name="ElementShortName">eth_rstn</obj_property>
+      <obj_property name="ObjectShortName">eth_rstn</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/eth_tx_en" type="logic">
+      <obj_property name="ElementShortName">eth_tx_en</obj_property>
+      <obj_property name="ObjectShortName">eth_tx_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/eth_txd" type="array">
+      <obj_property name="ElementShortName">eth_txd[3:0]</obj_property>
+      <obj_property name="ObjectShortName">eth_txd[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/eth_mdio" type="logic">
+      <obj_property name="ElementShortName">eth_mdio</obj_property>
+      <obj_property name="ObjectShortName">eth_mdio</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/eth_mdc" type="logic">
+      <obj_property name="ElementShortName">eth_mdc</obj_property>
+      <obj_property name="ObjectShortName">eth_mdc</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/do_axi_write" type="logic">
+      <obj_property name="ElementShortName">do_axi_write</obj_property>
+      <obj_property name="ObjectShortName">do_axi_write</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/axi_write_addr" type="array">
+      <obj_property name="ElementShortName">axi_write_addr[12:0]</obj_property>
+      <obj_property name="ObjectShortName">axi_write_addr[12:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/axi_write_data" type="array">
+      <obj_property name="ElementShortName">axi_write_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">axi_write_data[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/tx_en_t1" type="logic">
+      <obj_property name="ElementShortName">tx_en_t1</obj_property>
+      <obj_property name="ObjectShortName">tx_en_t1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/mdio_oe" type="logic">
+      <obj_property name="ElementShortName">mdio_oe</obj_property>
+      <obj_property name="ObjectShortName">mdio_oe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/mdio_out" type="logic">
+      <obj_property name="ElementShortName">mdio_out</obj_property>
+      <obj_property name="ObjectShortName">mdio_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/mdio_state" type="array">
+      <obj_property name="ElementShortName">mdio_state[31:0]</obj_property>
+      <obj_property name="ObjectShortName">mdio_state[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/mdio_shift" type="array">
+      <obj_property name="ElementShortName">mdio_shift[15:0]</obj_property>
+      <obj_property name="ObjectShortName">mdio_shift[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/bitcount" type="array">
+      <obj_property name="ElementShortName">bitcount[5:0]</obj_property>
+      <obj_property name="ObjectShortName">bitcount[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/opcode" type="array">
+      <obj_property name="ElementShortName">opcode[1:0]</obj_property>
+      <obj_property name="ObjectShortName">opcode[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/phy_addr" type="array">
+      <obj_property name="ElementShortName">phy_addr[4:0]</obj_property>
+      <obj_property name="ObjectShortName">phy_addr[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/reg_addr" type="array">
+      <obj_property name="ElementShortName">reg_addr[4:0]</obj_property>
+      <obj_property name="ObjectShortName">reg_addr[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/P_AXI_ADDR_WIDTH" type="array">
+      <obj_property name="ElementShortName">P_AXI_ADDR_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">P_AXI_ADDR_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/P_AXI_DATA_WIDTH" type="array">
+      <obj_property name="ElementShortName">P_AXI_DATA_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">P_AXI_DATA_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/BASE_ADDR" type="array">
+      <obj_property name="ElementShortName">BASE_ADDR[31:0]</obj_property>
+      <obj_property name="ObjectShortName">BASE_ADDR[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/MDIO_CTRL" type="array">
+      <obj_property name="ElementShortName">MDIO_CTRL[31:0]</obj_property>
+      <obj_property name="ObjectShortName">MDIO_CTRL[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/MDIO_DATA" type="array">
+      <obj_property name="ElementShortName">MDIO_DATA[31:0]</obj_property>
+      <obj_property name="ObjectShortName">MDIO_DATA[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/PHY_REG1_STATUS" type="array">
+      <obj_property name="ElementShortName">PHY_REG1_STATUS[15:0]</obj_property>
+      <obj_property name="ObjectShortName">PHY_REG1_STATUS[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/axi_eth_inst/m_axi_wvalid" type="logic">
+      <obj_property name="ElementShortName">m_axi_wvalid</obj_property>
+      <obj_property name="ObjectShortName">m_axi_wvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/axi_eth_inst/m_axi_bvalid" type="logic">
+      <obj_property name="ElementShortName">m_axi_bvalid</obj_property>
+      <obj_property name="ObjectShortName">m_axi_bvalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/axi_eth_tb/axi_eth_inst/m_axi_bready" type="logic">
+      <obj_property name="ElementShortName">m_axi_bready</obj_property>
+      <obj_property name="ObjectShortName">m_axi_bready</obj_property>
+   </wvobject>
+</wave_config>

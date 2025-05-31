@@ -4,7 +4,7 @@
     "xci_name": "axi_ethernetlite_0",
     "component_reference": "xilinx.com:ip:axi_ethernetlite:3.0",
     "ip_revision": "28",
-    "gen_directory": "../../../../axi_eth_tb.gen/sources_1/ip/axi_ethernetlite_0",
+    "gen_directory": "c:axi_eth_tb.gen/sources_1/ip/axi_ethernetlite_0",
     "parameters": {
       "component_parameters": {
         "C_RX_PING_PONG": [ { "value": "1", "resolve_type": "user", "format": "long", "usage": "all" } ],
@@ -57,7 +57,7 @@
         "IPCONTEXT": [ { "value": "IP_Flow" } ],
         "IPREVISION": [ { "value": "28" } ],
         "MANAGED": [ { "value": "TRUE" } ],
-        "OUTPUTDIR": [ { "value": "../../../../axi_eth_tb.gen/sources_1/ip/axi_ethernetlite_0" } ],
+        "OUTPUTDIR": [ { "value": "c:axi_eth_tb.gen/sources_1/ip/axi_ethernetlite_0" } ],
         "SELECTEDSIMMODEL": [ { "value": "" } ],
         "SHAREDDIR": [ { "value": "." } ],
         "SWVERSION": [ { "value": "2023.2" } ],
