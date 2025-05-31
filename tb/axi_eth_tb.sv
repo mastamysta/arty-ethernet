@@ -159,6 +159,7 @@ always_ff @(posedge eth_mdc) begin
                 bitcount <= bitcount + 1;
                 if (bitcount == 31) begin
                     mdio_state <= START;
+                    bitcount <= 0;
                 end
             end else begin
                 bitcount <= 0;
@@ -166,10 +167,10 @@ always_ff @(posedge eth_mdc) begin
         end
 
         START: begin
-            mdio_shift <= (mdio_shift < 1) | eth_mdio;
+            mdio_shift <= {mdio_shift[14:0], eth_mdio};
             bitcount <= bitcount + 1;
             if (bitcount == 1)begin
-                if (mdio_shift[1:0] == 2'b01) begin
+                if (mdio_shift[0] == 1'b0 && eth_mdio) begin
                     mdio_state <= OPCODE;
                     bitcount <= 0;
                 end else begin
@@ -188,7 +189,7 @@ always_ff @(posedge eth_mdc) begin
         end
 
         PHY_ADDR: begin
-            phy_addr <= {phy_addr[4:1], eth_mdio}; // DIFF
+            phy_addr <= {phy_addr[3:0], eth_mdio}; // DIFF
             bitcount <= bitcount + 1;
             if (bitcount == 4) begin
                 mdio_state <= REG_ADDR;
@@ -197,7 +198,7 @@ always_ff @(posedge eth_mdc) begin
         end
 
         REG_ADDR: begin
-            reg_addr <= {reg_addr[4:1], eth_mdio};
+            reg_addr <= {reg_addr[3:0], eth_mdio};
             bitcount <= bitcount + 1;
             if (bitcount == 4) begin
                 mdio_state <= TURNAROUND;
