@@ -26,6 +26,7 @@ module axi_eth#
     input wire do_axi_write,
     input wire[P_AXI_ADDR_WIDTH-1:0] axi_write_addr,
     input wire[P_AXI_DATA_WIDTH-1:0] axi_write_data,
+    output logic write_done,
 
     input wire do_axi_read,
     input wire[P_AXI_ADDR_WIDTH-1:0] axi_read_addr,
@@ -75,6 +76,9 @@ always_ff @(posedge clk) begin
 
         if (m_axi_bready && m_axi_bvalid) begin
             m_axi_bready <= 1'b0;
+            write_done <= 1'b1;
+        end else begin
+            write_done<= 1'b0;
         end
     end
 end

@@ -39,6 +39,7 @@ always #20 eth_rx_clk = ~eth_rx_clk;
 logic do_axi_write = 1'b0;
 logic[P_AXI_ADDR_WIDTH-1:0] axi_write_addr = 0;
 logic[P_AXI_DATA_WIDTH-1:0] axi_write_data = 0;
+wire write_done;
 
 logic do_axi_read = 1'b0;
 logic[P_AXI_ADDR_WIDTH-1:0] axi_read_addr = 0;
@@ -71,6 +72,7 @@ axi_eth_inst
     .do_axi_write(do_axi_write),
     .axi_write_addr(axi_write_addr),
     .axi_write_data(axi_write_data),
+    .write_done(write_done),
     .do_axi_read(do_axi_read),
     .axi_read_addr(axi_read_addr),
     .axi_read_data(axi_read_data),
@@ -83,25 +85,26 @@ localparam MDIO_CTRL    = BASE_ADDR + 32'h07F0;
 localparam MDIO_WR      = BASE_ADDR + 32'h07E8;
 logic[P_AXI_DATA_WIDTH-1:0] status;
 
-initial begin
-    #400; // Wait for first MDC pulse
-    $display("Writing address to write.");
-    axi_write_addr <= MDIO_ADDR;
-    axi_write_data <= 32'h00000401; // READ address 1
-    do_axi_write <= 1'b1;
-    #10;
-    do_axi_write <= 1'b0;
-
-    #200
+task automatic  axi_write(input logic[P_AXI_ADDR_WIDTH-1:0] addr, input logic[P_AXI_DATA_WIDTH-1:0] data);
     
-    $display("Writing data to write.");
-    axi_write_addr <= MDIO_CTRL;
-    axi_write_data <= 32'h00000009; // Trigger it
+    axi_write_addr <= addr;
+    axi_write_data <= data; 
     do_axi_write <= 1'b1;
-    #10;
+
+    @(posedge clk);
+    
     do_axi_write <= 1'b0;
 
-    $display("Waiting for stuff.");
+    @(posedge write_done);
+endtask
+
+initial begin
+    @(posedge eth_mdc);
+
+    axi_write(MDIO_ADDR, 32'h00000401); // READ address 1
+
+    axi_write(MDIO_CTRL, 32'h00000009); // Trigger it 
+
 end
 
 logic tx_en_t1;
@@ -236,7 +239,7 @@ always_ff @(posedge eth_mdc) begin
 
         READ_DATA: begin
             mdio_out <= mdio_shift[15];
-            mdio_shift <= mdio_shift < 1;
+            mdio_shift <= {mdio_shift[14:0], 1'b0};
             bitcount <= bitcount + 1;
             if (bitcount == 15) begin
                 mdio_oe <= 0;
