@@ -21,11 +21,11 @@ always begin
 end
 
 logic eth_tx_clk = 1'b0;
-logic eth_rx_clk = 1'b0;
+wire eth_rx_clk;
 logic eth_crs = 1'b0; // Carrier-sense ignored in full-duplex
 logic eth_col = 1'b0; // As above ^
-logic eth_rx_dv = 1'b0;
-logic[3:0] eth_rxd = 4'h0;
+wire eth_rx_dv;
+wire[3:0] eth_rxd;
 logic eth_rxerr = 1'b0;
 wire eth_rstn;
 wire eth_tx_en;
@@ -33,8 +33,11 @@ wire[3:0] eth_txd;
 wire eth_mdio;
 wire eth_mdc;
 
+// Just set up TX and RX on loopback.
 always #20 eth_tx_clk = ~eth_tx_clk;
-always #20 eth_rx_clk = ~eth_rx_clk;
+assign eth_rx_clk = eth_tx_clk;
+assign eth_rxd = eth_txd;
+assign eth_rx_dv = eth_tx_en;
 
 logic do_axi_write = 1'b0;
 logic[P_AXI_ADDR_WIDTH-1:0] axi_write_addr = 0;
@@ -83,40 +86,100 @@ localparam BASE_ADDR    = 32'h0000_0000;
 localparam MDIO_ADDR    = BASE_ADDR + 32'h07E4;
 localparam MDIO_CTRL    = BASE_ADDR + 32'h07F0;
 localparam MDIO_WR      = BASE_ADDR + 32'h07E8;
+
+localparam TX_PING_LENGTH = BASE_ADDR + 32'h07F4;
+localparam TX_PING_CTRL = BASE_ADDR + 32'h07FC;
+
+localparam RX_PING_LENGTH = BASE_ADDR + 32'h17FC;
+localparam RX_PING_CTRL = BASE_ADDR + 32'h17FC;
+localparam RX_PING_BUFFER = BASE_ADDR + 32'h1000;
+
 logic[P_AXI_DATA_WIDTH-1:0] status;
 
-task automatic  axi_write(input logic[P_AXI_ADDR_WIDTH-1:0] addr, input logic[P_AXI_DATA_WIDTH-1:0] data);
-    
+task automatic axi_write(input logic[P_AXI_ADDR_WIDTH-1:0] addr, 
+                         input logic[P_AXI_DATA_WIDTH-1:0] data);
     axi_write_addr <= addr;
     axi_write_data <= data; 
     do_axi_write <= 1'b1;
-
     @(posedge clk);
-    
     do_axi_write <= 1'b0;
-
     @(posedge write_done);
+endtask
+
+task automatic axi_read(input logic[P_AXI_ADDR_WIDTH-1:0] addr, output logic[P_AXI_DATA_WIDTH-1:0] data);
+    axi_read_addr <= addr;
+    do_axi_read <= 1'b1;
+    @(posedge clk);
+    do_axi_read <= 1'b0;
+    @(posedge read_done);
+    data = axi_read_data;
+endtask
+
+task automatic wait_packet_sent();
+    int i = 0;
+    logic[31:0] tx_status;
+    do begin
+        axi_read(TX_PING_CTRL, tx_status);
+        i++;
+    end while ((tx_status & 1'b1));
+    $display("Packet sent after %d reads! Status %d", i, tx_status);
+endtask
+
+task automatic wait_packet_avail();
+    int i = 0;
+    logic[31:0] rx_status;
+    do begin
+        axi_read(RX_PING_CTRL, rx_status);
+        i++;
+    end while ((rx_status[0]) == 1'b0);
+    $display("Packet available after %d reads!", i);
+endtask
+
+task automatic await_read_packet();
+    logic[P_AXI_DATA_WIDTH-1:0] buffer_data;
+    wait_packet_avail();
+    axi_read(RX_PING_BUFFER + 32'h000C, buffer_data);
+    $display("Packet length is %h bytes", buffer_data & 32'h0000_00FF);
+endtask
+
+task automatic send_frame();
+    int i;
+    // Dest address is BROADCAST & src address is DEADBEEFDEAD
+    axi_write(32'h0000, 32'hFFFF_FFFF);
+    axi_write(32'h0004, 32'hDEAD_FFFF);
+    axi_write(32'h0008, 32'hBEEF_DEAD);
+    // Frame data length is 0x82 bytes (notionally), then just add DEADBEEF
+    axi_write(32'h000C, 32'hBEEF_0082);
+    for (i = 1; i <= 'h20; i++) begin
+        axi_write(32'h000C + (i * 4), 32'hDEAD_BEEF);
+    end
+    // Set frame length
+    axi_write(TX_PING_LENGTH, 32'h0000_0082);
+
+    // Set status bit (SEND IT)
+    axi_write(TX_PING_CTRL, 32'h1);
+    wait_packet_sent();
+endtask
+
+task automatic clear_rx_status();
+    axi_write(RX_PING_CTRL, 32'h0000_0000);
 endtask
 
 initial begin
     @(posedge eth_mdc);
 
-    axi_write(MDIO_ADDR, 32'h00000401); // READ address 1
+    // Just read out MDIO register 1... this validates the MDIO
+    // interface is working roughly correctly.
+    // axi_write(MDIO_ADDR, 32'h00000401); // READ address 1
+    // axi_write(MDIO_CTRL, 32'h00000009); // Trigger it 
 
-    axi_write(MDIO_CTRL, 32'h00000009); // Trigger it 
+    #200;
 
-end
+    clear_rx_status();
 
-logic tx_en_t1;
+    send_frame();
 
-always_ff @(posedge clk) begin
-    if (eth_tx_en) begin
-        $display("%d", eth_txd);
-    end else if (tx_en_t1) begin
-        $display("End of frame.");
-    end
-
-    tx_en_t1 <= eth_tx_en;
+    await_read_packet();
 end
 
 // MDIO direction control:

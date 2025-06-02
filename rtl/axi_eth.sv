@@ -57,6 +57,9 @@ always_ff @(posedge clk) begin
         m_axi_awvalid <= 1'b0;
         m_axi_wvalid <= 1'b0;
         m_axi_bready <= 1'b0;
+        write_done <= 1'b0;
+        read_done <= 1'b0;
+        m_axi_wstrb <= 4'b1111;
     end else begin
         if (do_axi_write) begin
             m_axi_awaddr <= axi_write_addr;
@@ -88,7 +91,7 @@ always_ff @(posedge clk) begin
         m_axi_arvalid <= 1'b0;
         m_axi_rready <= 1'b0;
     end else begin
-        if (do_axi_write) begin
+        if (do_axi_read) begin
             m_axi_araddr <= axi_read_addr;
             m_axi_arvalid <= 1'b1;
             m_axi_rready <= 1'b1;
